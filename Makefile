@@ -1,9 +1,9 @@
 CC=gcc
 CFLAGS=-Wall -O3 -DHAVE_INLINE
 LDFLAGS=-lgsl -lgslcblas -lm
-OBJFILES=dos.o numstates.o weights.o
+OBJFILES=dos.o numstates.o weights.o sum.o
 
-all: dos.o numstates.o weights.o
+all: dos.o numstates.o weights.o sum.o
 
 clean:
 	rm *.o *.out
@@ -16,6 +16,9 @@ numstates.o: numstates.c numstates.h
 
 weights.o: weights.c weights.h dos.o
 	$(CC) $(CFLAGS) -c weights.c
+
+sum.o: sum.c sum.h weights.o
+	$(CC) $(CFLAGS) -c sum.c
 
 #HTightBinding_test.out: HTightBinding.o bstrlib/bstrlib.o bstrlib/bstraux.o HTightBinding_test.c
 #	$(CC) $(CFLAGS) -c HTightBinding_test.c -o HTightBinding_test.o
