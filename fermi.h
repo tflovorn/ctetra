@@ -1,6 +1,8 @@
 #ifndef CTETRA_FERMI_H
 #define CTETRA_FERMI_H
 
+#include <time.h>
+#include <math.h>
 #include "submesh.h"
 #include "numstates.h"
 

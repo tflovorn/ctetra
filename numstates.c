@@ -34,8 +34,12 @@ double NumStates(double E, int n, int num_bands, int G_order[3], int G_neg[3], I
                     pj = j + subcell_points[point_index][1];
                     pk = k + subcell_points[point_index][2];
                     submesh_ijk_to_k(n, pi, pj, pk, k_opt);
+                    //printf("k_opt = %f %f %f\n", k_opt[0], k_opt[1], k_opt[2]);
                     get_k_orig(k_opt, G_order, G_neg, k_orig);
-                    // TODO replace this with cached val if required.
+                    //printf("k_orig = %f %f %f\n", k_orig[0], k_orig[1], k_orig[2]);
+                    //printf("G_order = %d %d %d\n", G_order[0], G_order[1], G_order[2]);
+                    //printf("G_neg = %d %d %d\n", G_neg[0], G_neg[1], G_neg[2]);
+                    // TODO replace this Efn call with cached val if required.
                     Efn(k_orig, energies[point_index]);
                 }
                 // Calculate contributions for each tetrahedron.
