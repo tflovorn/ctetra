@@ -4,10 +4,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <gsl/gsl_vector.h>
+#include "input.h"
 #include "submesh.h"
-#include "sum.h"
+#include "ecache.h"
 
-double NumStates(double E, int n, int num_bands, int G_order[3], int G_neg[3], InputFn Efn);
+double NumStates(double E, int n, int num_bands, int G_order[3], int G_neg[3], EnergyCache *Ecache);
 
 void sortEs(double Es[4]);
 

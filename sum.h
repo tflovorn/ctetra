@@ -6,9 +6,8 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 
-// Need to define this before including fermi.h (circular reference).
-typedef void (*InputFn)(double k[3], gsl_vector *values);
-
+#include "input.h"
+#include "ecache.h"
 #include "submesh.h"
 #include "fermi.h"
 

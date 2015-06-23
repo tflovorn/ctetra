@@ -23,10 +23,13 @@ int main(int argc, char *argv[]) {
     int n = 8;
     int G_order[3] = {0, 1, 2};
     int G_neg[3] = {1, 1, 1};
+    bool use_cache = true;
+
+    EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
 
     double num_electrons = 1.0;
     double E_Fermi = 0.0;
-    int err = FindFermi(n, num_bands, num_electrons, G_order, G_neg, Efn, &E_Fermi);
+    int err = FindFermi(n, num_bands, num_electrons, G_order, G_neg, Ecache, &E_Fermi);
     printf("Got E_Fermi = %f\n", E_Fermi);
     if (err != CTETRA_BISECT_OK) {
         printf("Error = %d returned from FindFermi.\n", err);
@@ -40,7 +43,7 @@ int main(int argc, char *argv[]) {
     }
 
     num_electrons = 0.5;
-    err = FindFermi(n, num_bands, num_electrons, G_order, G_neg, Efn, &E_Fermi);
+    err = FindFermi(n, num_bands, num_electrons, G_order, G_neg, Ecache, &E_Fermi);
     printf("Got E_Fermi = %f\n", E_Fermi);
     if (err != CTETRA_BISECT_OK) {
         printf("Error = %d returned from FindFermi.\n", err);

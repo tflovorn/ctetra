@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
 #include <gsl/gsl_math.h>
@@ -23,10 +24,12 @@ int main(int argc, char *argv[]) {
     int n = 8;
     int G_order[3] = {0, 1, 2};
     int G_neg[3] = {1, 1, 1};
+    bool use_cache = true;
 
+    EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
 
     double E = 0.0;
-    double count = NumStates(E, n, num_bands, G_order, G_neg, Efn);
+    double count = NumStates(E, n, num_bands, G_order, G_neg, Ecache);
     double eps = 1e-9;
     double expected_E0 = 0.0;
     if (fabs(count - expected_E0) > eps) {
@@ -35,7 +38,7 @@ int main(int argc, char *argv[]) {
     }
 
     E = 6.0;
-    count = NumStates(E, n, num_bands, G_order, G_neg, Efn);
+    count = NumStates(E, n, num_bands, G_order, G_neg, Ecache);
     double expected_E6 = 0.5;
     if (fabs(count - expected_E6) > eps) {
         printf("Incorrect occupation; got %f, expected %f\n", count, expected_E6);
@@ -43,7 +46,7 @@ int main(int argc, char *argv[]) {
     }
 
     E = 12.0;
-    count = NumStates(E, n, num_bands, G_order, G_neg, Efn);
+    count = NumStates(E, n, num_bands, G_order, G_neg, Ecache);
     double expected_E12 = 1.0;
     if (fabs(count - expected_E12) > eps) {
         printf("Incorrect occupation; got %f, expected %f\n", count, expected_E12);
@@ -51,7 +54,7 @@ int main(int argc, char *argv[]) {
     }
 
     E = 26.0;
-    count = NumStates(E, n, num_bands, G_order, G_neg, Efn);
+    count = NumStates(E, n, num_bands, G_order, G_neg, Ecache);
     double expected_E24 = 2.0;
     if (fabs(count - expected_E24) > eps) {
         printf("Incorrect occupation; got %f, expected %f\n", count, expected_E24);

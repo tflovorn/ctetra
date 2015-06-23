@@ -1,9 +1,9 @@
 CC=gcc
 CFLAGS=-Wall -O3 -DHAVE_INLINE
 LDFLAGS=-lgsl -lgslcblas -lm
-OBJFILES=submesh.o dos.o numstates.o fermi.o weights.o sum.o
+OBJFILES=submesh.o ecache.o dos.o numstates.o fermi.o weights.o sum.o
 
-all: submesh.o dos.o numstates.o fermi.o weights.o sum.o numstates_test.out fermi_test.out
+all: submesh.o ecache.o dos.o numstates.o fermi.o weights.o sum.o numstates_test.out fermi_test.out
 
 clean:
 	rm *.o *.out
@@ -11,19 +11,22 @@ clean:
 submesh.o: submesh.c submesh.h
 	$(CC) $(CFLAGS) -c submesh.c
 
+ecache.o: ecache.c ecache.h submesh.o sum.h
+	$(CC) $(CFLAGS) -c ecache.c
+
 dos.o: dos.c dos.h
 	$(CC) $(CFLAGS) -c dos.c
 
-numstates.o: numstates.c numstates.h submesh.o
+numstates.o: numstates.c numstates.h submesh.o ecache.o
 	$(CC) $(CFLAGS) -c numstates.c
 
 fermi.o: fermi.c fermi.h numstates.o
 	$(CC) $(CFLAGS) -c fermi.c
 
-weights.o: weights.c weights.h dos.o
+weights.o: weights.c weights.h dos.o ecache.o
 	$(CC) $(CFLAGS) -c weights.c
 
-sum.o: sum.c sum.h weights.o
+sum.o: sum.c sum.h weights.o ecache.o fermi.o
 	$(CC) $(CFLAGS) -c sum.c
 
 numstates_test.out: numstates.o numstates_test.c

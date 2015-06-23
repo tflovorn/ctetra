@@ -7,6 +7,10 @@ void submesh_ijk_to_k(int n, int i, int j, int k, double k_opt[3]) {
     k_opt[2] = ((double)k) * step;
 }
 
+int submesh_ijk_index(int n, int i, int j, int k) {
+    return i + j*(n+1) + k*(n+1)*(n+1);
+}
+
 void get_k_orig(double k_opt[3], int G_order[3], int G_neg[3], double k_orig[3]) {
     int i;
     for (i = 0; i < 3; i++) {
@@ -67,20 +71,16 @@ void OptimizeGs(gsl_matrix *R, int G_order[3], int G_neg[3]) {
     //printf("finished optimizeGs; k3_to_k6 = %f\n", k3_to_k6);
 }
 
-void MinMaxVals(int n, int num_bands, int G_order[3], int G_neg[3], InputFn Efn, double *emin, double *emax) {
+void MinMaxVals(int n, int num_bands, int G_order[3], int G_neg[3], EnergyCache *Ecache, double *emin, double *emax) {
     double minval = 0.0;
     double maxval = 0.0;
     double this_min, this_max;
-    double k_opt[3] = {0.0, 0.0, 0.0};
-    double k_orig[3] = {0.0, 0.0, 0.0};
     gsl_vector *energies = gsl_vector_alloc(num_bands);
     int i, j, k;
     for (k = 0; k < n+1; k++) {
         for (j = 0; j < n+1; j++) {
             for (i = 0; i < n+1; i++) {
-                submesh_ijk_to_k(n, i, j, k, k_opt);
-                get_k_orig(k_opt, G_order, G_neg, k_orig);
-                Efn(k_orig, energies);
+                energy_from_cache(Ecache, i, j, k, energies);
                 gsl_vector_minmax(energies, &this_min, &this_max);
                 if (i == 0 && j == 0 && k == 0) {
                     minval = this_min;
@@ -98,4 +98,5 @@ void MinMaxVals(int n, int num_bands, int G_order[3], int G_neg[3], InputFn Efn,
     }
     *emin = minval;
     *emax = maxval;
+    gsl_vector_free(energies);
 }
