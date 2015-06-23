@@ -6,11 +6,13 @@ int FindFermi(int n, int num_bands, double num_electrons, int G_order[3], int G_
         double count = NumStates(E, n, num_bands, G_order, G_neg, Efn);
         time_t this_time = time(NULL);
         printf("At E = %f got count = %f; time = %f\n", E, count, difftime(this_time, start_time));
+
         return count - num_electrons;
     }
     // TODO replace this with cached calls if required.
     double emin, emax;
     MinMaxVals(n, num_bands, G_order, G_neg, Efn, &emin, &emax);
+
 
     double toln = 1e-10;
     double maxiter = 300;
@@ -44,10 +46,8 @@ int Bisect(double *result, BisectFn fn, double a, double b, double toly, int max
 	for (iter = 0; iter < maxiter; iter++) {
 		mid = (low + high) / 2.0;
 		val_mid = fn(mid);
-        printf("in bisect; val_mid = %f\n", val_mid);
 
 		if (fabs(val_mid) < toly) {
-            printf("bisect finished; val_mid = %f\n", val_mid);
             *result = mid;
             return CTETRA_BISECT_OK;
 		} else if (val_mid > 0.0) {

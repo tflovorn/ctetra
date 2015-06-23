@@ -2,6 +2,7 @@
 #define CTETRA_NUMSTATES_H
 
 #include <stdlib.h>
+#include <math.h>
 #include <gsl/gsl_vector.h>
 #include "submesh.h"
 #include "sum.h"

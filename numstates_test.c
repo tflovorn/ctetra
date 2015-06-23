@@ -34,6 +34,14 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    E = 6.0;
+    count = NumStates(E, n, num_bands, G_order, G_neg, Efn);
+    double expected_E6 = 0.5;
+    if (fabs(count - expected_E6) > eps) {
+        printf("Incorrect occupation; got %f, expected %f\n", count, expected_E6);
+        return 1;
+    }
+
     E = 12.0;
     count = NumStates(E, n, num_bands, G_order, G_neg, Efn);
     double expected_E12 = 1.0;

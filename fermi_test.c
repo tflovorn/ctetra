@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
     double num_electrons = 1.0;
     double E_Fermi = 0.0;
     int err = FindFermi(n, num_bands, num_electrons, G_order, G_neg, Efn, &E_Fermi);
+    printf("Got E_Fermi = %f\n", E_Fermi);
     if (err != CTETRA_BISECT_OK) {
         printf("Error = %d returned from FindFermi.\n", err);
         return err;
@@ -34,6 +35,21 @@ int main(int argc, char *argv[]) {
 
     double expected = 13.0;
     if (E_Fermi < 12.0 || E_Fermi > 14.0) {
+        printf("Incorrect E_Fermi; got %f, expected %f\n", E_Fermi, expected);
+        return 1;
+    }
+
+    num_electrons = 0.5;
+    err = FindFermi(n, num_bands, num_electrons, G_order, G_neg, Efn, &E_Fermi);
+    printf("Got E_Fermi = %f\n", E_Fermi);
+    if (err != CTETRA_BISECT_OK) {
+        printf("Error = %d returned from FindFermi.\n", err);
+        return err;
+    }
+
+    double tol = 1e-8;
+    expected = 6.0;
+    if (fabs(E_Fermi - expected) > tol) {
         printf("Incorrect E_Fermi; got %f, expected %f\n", E_Fermi, expected);
         return 1;
     }
