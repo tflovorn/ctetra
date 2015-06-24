@@ -3,7 +3,7 @@ CFLAGS=-Wall -O3 -DHAVE_INLINE
 LDFLAGS=-lgsl -lgslcblas -lm
 OBJFILES=submesh.o ecache.o dos.o numstates.o fermi.o weights.o sum.o
 
-all: submesh.o ecache.o dos.o numstates.o fermi.o weights.o sum.o numstates_test.out fermi_test.out
+all: submesh.o ecache.o dos.o numstates.o fermi.o weights.o sum.o numstates_test.out fermi_test.out sum_test.out
 
 clean:
 	rm *.o *.out
@@ -36,3 +36,7 @@ numstates_test.out: numstates.o numstates_test.c
 fermi_test.out: fermi.o fermi_test.c
 	$(CC) $(CFLAGS) -c fermi_test.c -o fermi_test.o
 	$(CC) fermi_test.o -o fermi_test.out $(OBJFILES) $(LDFLAGS)
+
+sum_test.out: sum.o sum_test.c
+	$(CC) $(CFLAGS) -c sum_test.c -o sum_test.o
+	$(CC) sum_test.o -o sum_test.out $(OBJFILES) $(LDFLAGS)

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <gsl/gsl_math.h>
+#include <gsl/gsl_vector.h>
 #include "fermi.h"
 
 int main(int argc, char *argv[]) {

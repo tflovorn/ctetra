@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <gsl/gsl_math.h>
+#include <gsl/gsl_vector.h>
 #include "numstates.h"
 
 int main(int argc, char *argv[]) {
