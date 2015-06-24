@@ -1,5 +1,140 @@
 #include "weights.h"
 
+void WeightsAtK(double E_Fermi, int i, int j, int k, EnergyCache *Ecache, double *result) {
+    int n = Ecache->n;
+    double num_tetra = (double)(6*n*n*n);
+    int num_bands = Ecache->num_bands;
+    double* c = (double*)malloc(num_bands * sizeof(double));
+    int band_index;
+    for (band_index = 0; band_index < num_bands; band_index++) {
+        c[band_index] = 0.0;
+    }
+    double contrib, y, t;
+
+    int tetras[6][4] = {{1, 2, 3, 6}, {1, 3, 5, 6}, {3, 5, 6, 7}, {3, 6, 7, 8}, {3, 4, 6, 8}, {2, 3, 4, 6}};
+    int subcell_points[8][3] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}, {0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 1}};
+    int subcell_num = 0;
+    int **subcells = subcells_around_ijk(n, i, j, k, &subcell_num);
+
+    int subcell_index, tetra_index, vertex_index, point_index;
+    int sci, scj, sck, pi, pj, pk;
+    bool ijk_seen;
+
+    gsl_vector **tetra_Es = (gsl_vector**)malloc(4 * sizeof(gsl_vector*));
+    int **tetra_ks = (int**)malloc(4 * sizeof(int*));
+    double *sorted_Es = (double*)malloc(4 * sizeof(double));
+    int **sorted_ks = (int**)malloc(4 * sizeof(int*));
+    double *ws = (double*)malloc(4 * sizeof(double));
+    for (vertex_index = 0; vertex_index < 4; vertex_index++) {
+        tetra_Es[vertex_index] = gsl_vector_alloc(num_bands);
+        tetra_ks[vertex_index] = (int*)malloc(3 * sizeof(int));
+        sorted_ks[vertex_index] = (int*)malloc(3 * sizeof(int));
+    }
+
+    // Iterate over subcells neighboring (i, j, k).
+    for (subcell_index = 0; subcell_index < subcell_num; subcell_index++) {
+        sci = subcells[subcell_index][0];
+        scj = subcells[subcell_index][1];
+        sck = subcells[subcell_index][2];
+        // Iterate over the tetrahedra covering this subcell.
+        for (tetra_index = 0; tetra_index < 6; tetra_index++) {
+            // Skip tetrahedra that do not include (i, j, k) as a vertex.
+            ijk_seen = false;
+            for (vertex_index = 0; vertex_index < 4; vertex_index++) {
+                point_index = tetras[tetra_index][vertex_index] - 1;
+                pi = sci + subcell_points[point_index][0];
+                pj = scj + subcell_points[point_index][1];
+                pk = sck + subcell_points[point_index][2];
+                if (pi == i && pj == j && pk == k) {
+                    ijk_seen = true;
+                }
+            }
+            if (!ijk_seen) {
+                continue;
+            }
+            // If we get here, want to include this tetrahedron.
+            // Collect band energies at the vertices.
+            for (vertex_index = 0; vertex_index < 4; vertex_index++) {
+                point_index = tetras[tetra_index][vertex_index] - 1;
+                pi = sci + subcell_points[point_index][0];
+                pj = scj + subcell_points[point_index][1];
+                pk = sck + subcell_points[point_index][2];
+                energy_from_cache(Ecache, pi, pj, pk, tetra_Es[vertex_index]);
+                tetra_ks[vertex_index][0] = pi;
+                tetra_ks[vertex_index][1] = pj;
+                tetra_ks[vertex_index][2] = pk;
+            }
+            // For each band, sort vertices by energy and calculate the
+            // associated weight.
+            for (band_index = 0; band_index < num_bands; band_index++) {
+                // Initialize sorting arrays for this band.
+                for (vertex_index = 0; vertex_index < 4; vertex_index++) {
+                    sorted_Es[vertex_index] = gsl_vector_get(tetra_Es[vertex_index], band_index);
+                    sorted_ks[vertex_index][0] = tetra_ks[vertex_index][0];
+                    sorted_ks[vertex_index][1] = tetra_ks[vertex_index][1];
+                    sorted_ks[vertex_index][2] = tetra_ks[vertex_index][2];
+                }
+                // Sort Es and sort ks by associated Es.
+                sortEsKs(sorted_Es, sorted_ks);
+                // Get the weight contributions for this tetrahedron's vertices.
+                WeightContrib(E_Fermi, sorted_Es[0], sorted_Es[1], sorted_Es[2], sorted_Es[3], num_tetra, ws);
+                // Add the weight contribution from vertex (i, j, k) to the total.
+                for (vertex_index = 0; vertex_index < 4; vertex_index++) {
+                    pi = sorted_ks[vertex_index][0];
+                    pj = sorted_ks[vertex_index][1];
+                    pk = sorted_ks[vertex_index][2];
+                    if (pi == i && pj == j && pk == k) {
+                        // Shouldn't get here more than once per band_index.
+                        // TODO - add check to verify?
+                        contrib = ws[vertex_index];
+                        y = contrib - c[band_index];
+                        t = result[band_index] + y;
+                        c[band_index] = (t - result[band_index]) - y;
+                        result[band_index] = t;
+                    }
+                }
+            }
+        }
+    }
+
+    for (vertex_index = 0; vertex_index < 4; vertex_index++) {
+        free(sorted_ks[vertex_index]);
+        free(tetra_ks[vertex_index]);
+        gsl_vector_free(tetra_Es[vertex_index]);
+    }
+    free(ws);
+    free(sorted_ks);
+    free(sorted_Es);
+    free(tetra_ks);
+    free(tetra_Es);
+
+    for (subcell_index = 0; subcell_index < subcell_num; subcell_index++) {
+        free(subcells[subcell_index]);
+    }
+    free(subcells);
+    free(c);
+}
+
+// Assumes that Es and ks are length-4 arrays.
+void sortEsKs(double *Es, int **ks) {
+    // insertion sort
+    int i, j;
+    double tmpE;
+    int *tmpk;
+	for (i = 1; i < 4; i++) {
+		for (j = i; j > 0 && Es[j-1] > Es[j]; j--) {
+			// swap j, j-1
+            tmpE = Es[j-1];
+			Es[j-1] = Es[j];
+            Es[j] = tmpE;
+
+            tmpk = ks[j-1];
+            ks[j-1] = ks[j];
+            ks[j] = tmpk;
+		}
+	}
+}
+
 // Return the specified tetrahedron's contribution to the integration
 // weights at the k-points of the tetrahedron's vertices; i.e. return
 // a list with elements w_{bandIndex, kN, tetra}, where the elements of the

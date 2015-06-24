@@ -12,6 +12,8 @@ void submesh_ijk_to_k(int n, int i, int j, int k, double k_opt[3]);
 
 int submesh_ijk_index(int n, int i, int j, int k);
 
+int **subcells_around_ijk(int n, int i, int j, int k, int *subcell_num);
+
 void get_k_orig(double k_opt[3], int G_order[3], int G_neg[3], double k_orig[3]);
 
 void MinMaxVals(int n, int num_bands, int G_order[3], int G_neg[3], EnergyCache *Ecache, double *emin, double *emax);

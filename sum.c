@@ -10,9 +10,39 @@ double SumEnergy(double *E_Fermi, InputFn Efn, int n, int num_bands, double num_
     int err = FindFermi(n, num_bands, num_electrons, G_order, G_neg, Ecache, E_Fermi);
     if (err != CTETRA_BISECT_OK) {
         printf("Error: FindFermi failed with error code = %d\n", err);
-        free_EnergyCache(Ecache)
+        free_EnergyCache(Ecache);
         exit(EXIT_FAILURE);
     }
-    free_EnergyCache(Ecache)
-    return 0.0;
+
+    double result = 0.0;
+    double c = 0.0;
+    double contrib, y, t;
+    int i, j, k, band_index;
+    double *this_ws = (double*)malloc(num_bands * sizeof(double));
+    gsl_vector *this_Es = gsl_vector_alloc(num_bands);
+    // Iterate over all k-points and collect their contributions to
+    // the energy.
+    for (k = 0; k < n+1; k++) {
+        for (j = 0; j < n+1; j++) {
+            for (i = 0; i < n+1; i++) {
+                for (band_index = 0; band_index < num_bands; band_index++) {
+                    this_ws[band_index] = 0.0;
+                }
+                WeightsAtK(*E_Fermi, i, j, k, Ecache, this_ws);
+                energy_from_cache(Ecache, i, j, k, this_Es);
+                for (band_index = 0; band_index < num_bands; band_index++) {
+                    contrib = this_ws[band_index] * gsl_vector_get(this_Es, band_index);
+                    y = contrib - c;
+                    t = result + y;
+                    c = (t - result) - y;
+                    result = t;
+                }
+            }
+        }
+    }
+
+    gsl_vector_free(this_Es);
+    free(this_ws);
+    free_EnergyCache(Ecache);
+    return result;
 }

@@ -11,6 +11,114 @@ int submesh_ijk_index(int n, int i, int j, int k) {
     return i + j*(n+1) + k*(n+1)*(n+1);
 }
 
+int **subcells_around_ijk(int n, int i, int j, int k, int *subcell_num) {
+    *subcell_num = 0;
+	// For each subcell, point (i, j, k) has the number in BJA94 Fig. 5
+	// corresponding to the subcell number.
+    // First pass: get number of subcells that will be returned.
+	// Subcell #1
+	if (i != n && j != n && k != n) {
+        (*subcell_num)++;
+	}
+	// Subcell #2
+	if (i != 0 && j != n && k != n) {
+        (*subcell_num)++;
+	}
+	// Subcell #3
+	if (i != n && j != 0 && k != n) {
+        (*subcell_num)++;
+	}
+	// Subcell #4
+	if (i != 0 && j != 0 && k != n) {
+        (*subcell_num)++;
+	}
+	// Subcell #5
+	if (i != n && j != n && k != 0) {
+        (*subcell_num)++;
+	}
+	// Subcell #6
+	if (i != 0 && j != n && k != 0) {
+        (*subcell_num)++;
+	}
+	// Subcell #7
+	if (i != n && j != 0 && k != 0) {
+        (*subcell_num)++;
+	}
+	// Subcell #8
+	if (i != 0 && j != 0 && k != 0) {
+        (*subcell_num)++;
+	}
+    // Allocate return value.
+    int **subcells = (int**)malloc((*subcell_num) * sizeof(int*));
+    int subcell_index = 0;
+    // Collect subcells to return.
+	// Subcell #1
+	if (i != n && j != n && k != n) {
+        subcells[subcell_index] = (int*)malloc(3*sizeof(int));
+        subcells[subcell_index][0] = i;
+        subcells[subcell_index][1] = j;
+        subcells[subcell_index][2] = k;
+        subcell_index++;
+	}
+	// Subcell #2
+	if (i != 0 && j != n && k != n) {
+        subcells[subcell_index] = (int*)malloc(3*sizeof(int));
+        subcells[subcell_index][0] = i - 1;
+        subcells[subcell_index][1] = j;
+        subcells[subcell_index][2] = k;
+        subcell_index++;
+	}
+	// Subcell #3
+	if (i != n && j != 0 && k != n) {
+        subcells[subcell_index] = (int*)malloc(3*sizeof(int));
+        subcells[subcell_index][0] = i;
+        subcells[subcell_index][1] = j - 1;
+        subcells[subcell_index][2] = k;
+        subcell_index++;
+	}
+	// Subcell #4
+	if (i != 0 && j != 0 && k != n) {
+        subcells[subcell_index] = (int*)malloc(3*sizeof(int));
+        subcells[subcell_index][0] = i - 1;
+        subcells[subcell_index][1] = j - 1;
+        subcells[subcell_index][2] = k;
+        subcell_index++;
+	}
+	// Subcell #5
+	if (i != n && j != n && k != 0) {
+        subcells[subcell_index] = (int*)malloc(3*sizeof(int));
+        subcells[subcell_index][0] = i;
+        subcells[subcell_index][1] = j;
+        subcells[subcell_index][2] = k - 1;
+        subcell_index++;
+	}
+	// Subcell #6
+	if (i != 0 && j != n && k != 0) {
+        subcells[subcell_index] = (int*)malloc(3*sizeof(int));
+        subcells[subcell_index][0] = i - 1;
+        subcells[subcell_index][1] = j;
+        subcells[subcell_index][2] = k - 1;
+        subcell_index++;
+	}
+	// Subcell #7
+	if (i != n && j != 0 && k != 0) {
+        subcells[subcell_index] = (int*)malloc(3*sizeof(int));
+        subcells[subcell_index][0] = i;
+        subcells[subcell_index][1] = j - 1;
+        subcells[subcell_index][2] = k - 1;
+        subcell_index++;
+	}
+	// Subcell #8
+	if (i != 0 && j != 0 && k != 0) {
+        subcells[subcell_index] = (int*)malloc(3*sizeof(int));
+        subcells[subcell_index][0] = i - 1;
+        subcells[subcell_index][1] = j - 1;
+        subcells[subcell_index][2] = k - 1;
+        subcell_index++;
+	}
+    return subcells;
+}
+
 void get_k_orig(double k_opt[3], int G_order[3], int G_neg[3], double k_orig[3]) {
     int i;
     for (i = 0; i < 3; i++) {
