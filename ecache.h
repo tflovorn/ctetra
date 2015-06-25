@@ -24,4 +24,6 @@ void free_EnergyCache(EnergyCache *Ecache);
 
 void energy_from_cache(EnergyCache *Ecache, int i, int j, int k, gsl_vector *energies);
 
+void verify_sort(gsl_vector *energies);
+
 #endif // CWANNIER_ECACHE_H

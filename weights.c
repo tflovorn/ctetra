@@ -8,6 +8,7 @@ void WeightsAtK(double E_Fermi, int i, int j, int k, EnergyCache *Ecache, double
     int band_index;
     for (band_index = 0; band_index < num_bands; band_index++) {
         c[band_index] = 0.0;
+        result[band_index] = 0.0;
     }
     double contrib, y, t;
 
@@ -79,19 +80,26 @@ void WeightsAtK(double E_Fermi, int i, int j, int k, EnergyCache *Ecache, double
                 // Get the weight contributions for this tetrahedron's vertices.
                 WeightContrib(E_Fermi, sorted_Es[0], sorted_Es[1], sorted_Es[2], sorted_Es[3], num_tetra, ws);
                 // Add the weight contribution from vertex (i, j, k) to the total.
+                int vertex_contrib_count = 0;
                 for (vertex_index = 0; vertex_index < 4; vertex_index++) {
                     pi = sorted_ks[vertex_index][0];
                     pj = sorted_ks[vertex_index][1];
                     pk = sorted_ks[vertex_index][2];
                     if (pi == i && pj == j && pk == k) {
-                        // Shouldn't get here more than once per band_index.
-                        // TODO - add check to verify?
+                        // This vertex is (i, j, k) - include its contribution.
+                        // Should only get here once per (tetrahedron, band_index) pair.
+                        vertex_contrib_count++;
                         contrib = ws[vertex_index];
                         y = contrib - c[band_index];
                         t = result[band_index] + y;
                         c[band_index] = (t - result[band_index]) - y;
                         result[band_index] = t;
                     }
+                }
+                // Sanity check - make sure to avoid double counting.
+                if (vertex_contrib_count != 1) {
+                    printf("Error: vertex_contrib_count != 1");
+                    exit(EXIT_FAILURE);
                 }
             }
         }

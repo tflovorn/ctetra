@@ -19,9 +19,12 @@ double SumEnergy(double *E_Fermi, InputFn Efn, int n, int num_bands, double num_
     double contrib, y, t;
     int i, j, k, band_index;
     double *this_ws = (double*)malloc(num_bands * sizeof(double));
-    gsl_vector *this_Es = gsl_vector_alloc(num_bands);
+    gsl_vector *this_Es = gsl_vector_calloc(num_bands);
     // Iterate over all k-points and collect their contributions to
     // the energy.
+    // The equivalent indices 0 and n are both included since the
+    // weights for points with these indices are generated from distinct
+    // places in the Brillouin zone.
     for (k = 0; k < n+1; k++) {
         for (j = 0; j < n+1; j++) {
             for (i = 0; i < n+1; i++) {

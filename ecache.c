@@ -19,17 +19,18 @@ EnergyCache* init_EnergyCache(int n, int num_bands, int G_order[3], int G_neg[3]
         gsl_vector **energies = (gsl_vector**)malloc(num_ks * sizeof(gsl_vector*));
         Ecache->energies = energies;
 
-        for (i = 0; i < n+1; i++) {
+        for (k = 0; k < n+1; k++) {
             for (j = 0; j < n+1; j++) {
-                for (k = 0; k < n+1; k++) {
+                for (i = 0; i < n+1; i++) {
                     int kN = submesh_ijk_index(Ecache->n, i, j, k);
-                    Ecache->energies[kN] = gsl_vector_alloc(num_bands);
+                    Ecache->energies[kN] = gsl_vector_calloc(num_bands);
 
                     double k_opt[3] = {0, 0, 0};
                     double k_orig[3] = {0, 0, 0};
                     submesh_ijk_to_k(n, i, j, k, k_opt);
                     get_k_orig(k_opt, G_order, G_neg, k_orig);
                     Efn(k_orig, Ecache->energies[kN]);
+                    verify_sort(Ecache->energies[kN]);
                 }
             }
         }
@@ -60,5 +61,19 @@ void energy_from_cache(EnergyCache *Ecache, int i, int j, int k, gsl_vector *ene
         submesh_ijk_to_k(Ecache->n, i, j, k, k_opt);
         get_k_orig(k_opt, Ecache->G_order, Ecache->G_neg, k_orig);
         Ecache->Efn(k_orig, energies);
+        verify_sort(energies);
+    }
+}
+
+void verify_sort(gsl_vector *energies) {
+    int i;
+    int len = energies->size;
+    for (i = 1; i < len; i++) {
+        double at_i = gsl_vector_get(energies, i);
+        double at_i_m1 = gsl_vector_get(energies, i-1);
+        if (at_i_m1 > at_i) {
+            printf("Error: energy eigenvalue vector not sorted.\n");
+            exit(EXIT_FAILURE);
+        }
     }
 }
