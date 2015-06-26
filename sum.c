@@ -14,6 +14,28 @@ double SumEnergy(double *E_Fermi, InputFn Efn, int n, int num_bands, double num_
         exit(EXIT_FAILURE);
     }
 
+    double energy = with_cache_SumEnergyFixedFermi(*E_Fermi, Ecache, n, num_bands);
+
+    free_EnergyCache(Ecache);
+
+    return energy;
+}
+
+double SumEnergyFixedFermi(double E_Fermi, InputFn Efn, int n, int num_bands, gsl_matrix *R, bool use_cache) {
+    int G_order[3] = {0, 0, 0};
+    int G_neg[3] = {0, 0, 0};
+    OptimizeGs(R, G_order, G_neg);
+
+    EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
+
+    double energy = with_cache_SumEnergyFixedFermi(E_Fermi, Ecache, n, num_bands);
+
+    free_EnergyCache(Ecache);
+
+    return energy;
+}
+
+double with_cache_SumEnergyFixedFermi(double E_Fermi, EnergyCache *Ecache, int n, int num_bands) {
     double result = 0.0;
     double c = 0.0;
     double contrib, y, t;
@@ -31,7 +53,7 @@ double SumEnergy(double *E_Fermi, InputFn Efn, int n, int num_bands, double num_
                 for (band_index = 0; band_index < num_bands; band_index++) {
                     this_ws[band_index] = 0.0;
                 }
-                WeightsAtK(*E_Fermi, i, j, k, Ecache, this_ws);
+                WeightsAtK(E_Fermi, i, j, k, Ecache, this_ws);
                 energy_from_cache(Ecache, i, j, k, this_Es);
                 for (band_index = 0; band_index < num_bands; band_index++) {
                     contrib = this_ws[band_index] * gsl_vector_get(this_Es, band_index);
@@ -43,9 +65,8 @@ double SumEnergy(double *E_Fermi, InputFn Efn, int n, int num_bands, double num_
             }
         }
     }
-
     gsl_vector_free(this_Es);
     free(this_ws);
-    free_EnergyCache(Ecache);
+
     return result;
 }
