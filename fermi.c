@@ -1,9 +1,9 @@
 #include "fermi.h"
 
-int FindFermi(int n, int num_bands, double num_electrons, int G_order[3], int G_neg[3], EnergyCache *Ecache, double *E_Fermi) {
+int FindFermi(int n, int num_bands, double num_electrons, EnergyCache *Ecache, double *E_Fermi) {
     time_t start_time = time(NULL);
     double statecount_error(double E) {
-        double count = NumStates(E, n, num_bands, G_order, G_neg, Ecache);
+        double count = NumStates(E, n, num_bands, Ecache);
         time_t this_time = time(NULL);
         printf("At E = %f got count = %f; time = %f\n", E, count, difftime(this_time, start_time));
 
@@ -11,7 +11,7 @@ int FindFermi(int n, int num_bands, double num_electrons, int G_order[3], int G_
     }
     // TODO replace this with cached calls if required.
     double emin, emax;
-    MinMaxVals(n, num_bands, G_order, G_neg, Ecache, &emin, &emax);
+    MinMaxVals(n, num_bands, Ecache, &emin, &emax);
 
     double toln = 1e-10;
     double maxiter = 300;

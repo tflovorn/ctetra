@@ -7,7 +7,7 @@ double SumEnergy(double *E_Fermi, InputFn Efn, int n, int num_bands, double num_
 
     EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
 
-    int err = FindFermi(n, num_bands, num_electrons, G_order, G_neg, Ecache, E_Fermi);
+    int err = FindFermi(n, num_bands, num_electrons, Ecache, E_Fermi);
     if (err != CTETRA_BISECT_OK) {
         printf("Error: FindFermi failed with error code = %d\n", err);
         free_EnergyCache(Ecache);

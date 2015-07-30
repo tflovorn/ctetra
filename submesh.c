@@ -179,7 +179,7 @@ void OptimizeGs(gsl_matrix *R, int G_order[3], int G_neg[3]) {
     //printf("finished optimizeGs; k3_to_k6 = %f\n", k3_to_k6);
 }
 
-void MinMaxVals(int n, int num_bands, int G_order[3], int G_neg[3], EnergyCache *Ecache, double *emin, double *emax) {
+void MinMaxVals(int n, int num_bands, EnergyCache *Ecache, double *emin, double *emax) {
     double minval = 0.0;
     double maxval = 0.0;
     double this_min, this_max;
