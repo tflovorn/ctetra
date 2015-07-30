@@ -7,10 +7,9 @@
 #include "input.h"
 #include "submesh.h"
 #include "ecache.h"
+#include "tetra.h"
 
 double NumStates(double E, int n, int num_bands, int G_order[3], int G_neg[3], EnergyCache *Ecache);
-
-void sortEs(double Es[4]);
 
 double NumStatesContrib(double E, double E1, double E2, double E3, double E4, double num_tetra);
 
