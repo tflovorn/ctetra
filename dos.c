@@ -1,5 +1,30 @@
 #include "dos.h"
 
+// Return a list of density of states values at the energies given in Es,
+// which has length num_dos.
+double* Tetra_DosList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *Es, int num_dos) {
+    int G_order[3] = {0, 0, 0};
+    int G_neg[3] = {0, 0, 0};
+    OptimizeGs(R, G_order, G_neg);
+
+    bool use_cache = true;
+    EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
+
+    double *dos_vals = malloc(num_dos * sizeof(double));
+
+    int i = 0;
+    for (i = 0; i < num_dos; i++) {
+        double E = Es[i];
+        dos_vals[i] = Tetra_TotalDos(E, Ecache, n, num_bands);
+    }
+    return dos_vals;
+}
+
+// Return the density of states at energy E.
+double Tetra_TotalDos(double E, EnergyCache *Ecache, int n, int num_bands) {
+    return tetra_SumTetra(DosContrib, E, n, num_bands, Ecache);
+}
+
 // Return the contribution to the density of states at energy E from the
 // (tetrahedron, band index) pair with the given energies at the vertices.
 // The calculation of D_T(E) is implemented as described in BJA94 Appendix C.
