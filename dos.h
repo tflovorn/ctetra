@@ -10,6 +10,7 @@
 #include "tetra.h"
 #include "submesh.h"
 
+double* Tetra_AllDosList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *Es, int num_dos);
 double* Tetra_DosList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *Es, int num_dos);
 double Tetra_TotalDos(double E, EnergyCache *Ecache, int n, int num_bands);
 double DosContrib(double E, double E1, double E2, double E3, double E4, double num_tetra);

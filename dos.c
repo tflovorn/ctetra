@@ -1,5 +1,30 @@
 #include "dos.h"
 
+// Return a list of density of states values between the minimum and maximum
+// energy eigenvalues, which has length num_dos.
+// The energy values used are stored in Es, which should have length num_dos.
+double* Tetra_AllDosList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *Es, int num_dos) {
+    int G_order[3] = {0, 0, 0};
+    int G_neg[3] = {0, 0, 0};
+    OptimizeGs(R, G_order, G_neg);
+
+    bool use_cache = true;
+    EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
+
+    double emin, emax;
+    MinMaxVals(n, num_bands, Ecache, &emin, &emax);
+    double step = (emax - emin) / (num_dos - 1);
+
+    double *dos_vals = malloc(num_dos * sizeof(double));
+
+    int i = 0;
+    for (i = 0; i < num_dos; i++) {
+        double E = emin + i*step;
+        Es[i] = E;
+        dos_vals[i] = Tetra_TotalDos(E, Ecache, n, num_bands);
+    }
+    return dos_vals;
+}
 // Return a list of density of states values at the energies given in Es,
 // which has length num_dos.
 double* Tetra_DosList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *Es, int num_dos) {
