@@ -24,4 +24,6 @@ void free_EvecCache(EvecCache *evCache);
 
 void EvecCache_MinMaxVals(int n, int num_bands, EvecCache *evCache, double *emin, double *emax);
 
+EnergyCache* copy_to_Ecache(EvecCache *evCache);
+
 #endif //CWANNIER_EVCACHE_H

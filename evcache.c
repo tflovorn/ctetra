@@ -83,3 +83,21 @@ void EvecCache_MinMaxVals(int n, int num_bands, EvecCache *evCache, double *emin
     *emin = minval;
     *emax = maxval;
 }
+
+EnergyCache* copy_to_Ecache(EvecCache *evCache) {
+    EnergyCache *Ecache = malloc(sizeof(EnergyCache));
+    Ecache->n = evCache->n;
+    Ecache->num_bands = evCache->num_bands;
+    Ecache->energies = evCache->energies;
+
+    Ecache->use_cache = true;
+    Ecache->Efn = NULL;
+
+    int i;
+    for (i = 0; i < 3; i++) {
+        Ecache->G_order[i] = 0;
+        Ecache->G_neg[i] = 0;
+    }
+
+    return Ecache;
+}
