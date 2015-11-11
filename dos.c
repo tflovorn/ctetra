@@ -63,10 +63,8 @@ double* Tetra_DosEnergyDerivList(InputFn Efn, int n, int num_bands, gsl_matrix *
         free_EnergyCache(Ecache);
         exit(EXIT_FAILURE);
     }
-    printf("Got Fermi\n");
     *dos_fermi = Tetra_TotalDos(*fermi, Ecache, n, num_bands);
     *dos_deriv_fermi = Tetra_TotalDosEnergyDeriv(*fermi, Ecache, n, num_bands);
-    printf("Got DOS at Fermi\n");
 
     double emin, emax;
     MinMaxVals(n, num_bands, Ecache, &emin, &emax);
@@ -80,7 +78,6 @@ double* Tetra_DosEnergyDerivList(InputFn Efn, int n, int num_bands, gsl_matrix *
         Es[i] = E;
         dos_deriv_vals[i] = Tetra_TotalDosEnergyDeriv(E, Ecache, n, num_bands);
     }
-    printf("Got DOS derivs\n");
     return dos_deriv_vals;
 }
 
