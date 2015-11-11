@@ -1,6 +1,7 @@
 #ifndef CTETRA_DOS_H
 #define CTETRA_DOS_H
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <gsl/gsl_vector.h>
@@ -9,10 +10,14 @@
 #include "ecache.h"
 #include "tetra.h"
 #include "submesh.h"
+#include "fermi.h"
 
 double* Tetra_AllDosList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *Es, int num_dos);
 double* Tetra_DosList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *Es, int num_dos);
+double* Tetra_DosEnergyDerivList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *Es, int num_dos, double num_electrons, double *fermi, double *dos_fermi, double *dos_deriv_fermi);
 double Tetra_TotalDos(double E, EnergyCache *Ecache, int n, int num_bands);
+double Tetra_TotalDosEnergyDeriv(double E, EnergyCache *Ecache, int n, int num_bands);
 double DosContrib(double E, double E1, double E2, double E3, double E4, double num_tetra);
+double DosEnergyDerivContrib(double E, double E1, double E2, double E3, double E4, double num_tetra);
 
 #endif // CTETRA_DOS_H
