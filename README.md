@@ -6,7 +6,7 @@ This paper is referred to in the documentation of this package as 'BJA94'.
 
 Requires the GNU Scientific Library. To obtain on Debian-based distribtions:
 
-    sudo apt-get install liblgsl0ldbl libgsl0-dev
+    sudo apt-get install libgsl0ldbl libgsl0-dev
 
 # Acknowledgement
 
