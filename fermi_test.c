@@ -21,16 +21,18 @@ int main(int argc, char *argv[]) {
             gsl_vector_set(energies, i, E0_band + tk);
         }
     }
-    int n = 8;
+    int na = 8;
+    int nb = 8;
+    int nc = 8;
     int G_order[3] = {0, 1, 2};
     int G_neg[3] = {1, 1, 1};
     bool use_cache = true;
 
-    EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
+    EnergyCache *Ecache = init_EnergyCache(na, nb, nc, num_bands, G_order, G_neg, Efn, use_cache);
 
     double num_electrons = 1.0;
     double E_Fermi = 0.0;
-    int err = FindFermi(n, num_bands, num_electrons, Ecache, &E_Fermi);
+    int err = FindFermi(num_electrons, Ecache, &E_Fermi);
     printf("Got E_Fermi = %f\n", E_Fermi);
     if (err != CTETRA_BISECT_OK) {
         printf("Error = %d returned from FindFermi.\n", err);
@@ -44,7 +46,7 @@ int main(int argc, char *argv[]) {
     }
 
     num_electrons = 0.5;
-    err = FindFermi(n, num_bands, num_electrons, Ecache, &E_Fermi);
+    err = FindFermi(num_electrons, Ecache, &E_Fermi);
     printf("Got E_Fermi = %f\n", E_Fermi);
     if (err != CTETRA_BISECT_OK) {
         printf("Error = %d returned from FindFermi.\n", err);

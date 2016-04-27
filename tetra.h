@@ -7,7 +7,7 @@
 
 typedef double (*tetra_SumFn)(double E, double E1, double E2, double E3, double E4, double num_tetra);
 
-double tetra_SumTetra(tetra_SumFn F, double E, int n, int num_bands, EnergyCache *Ecache);
+double tetra_SumTetra(tetra_SumFn F, double E, EnergyCache *Ecache);
 
 void sortEs(double Es[4]);
 

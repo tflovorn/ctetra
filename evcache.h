@@ -9,7 +9,9 @@
 #include "submesh.h"
 
 typedef struct {
-    int n;
+    int na;
+    int nb;
+    int nc;
     int num_bands;
     int G_order[3];
     int G_neg[3];
@@ -18,11 +20,11 @@ typedef struct {
     gsl_matrix_complex **evecs;
 } EvecCache;
 
-EvecCache* init_EvecCache(int n, int num_bands, int G_order[3], int G_neg[3], UEInputFn UEfn);
+EvecCache* init_EvecCache(int na, int nb, int nc, int num_bands, int G_order[3], int G_neg[3], UEInputFn UEfn);
 
 void free_EvecCache(EvecCache *evCache);
 
-void EvecCache_MinMaxVals(int n, int num_bands, EvecCache *evCache, double *emin, double *emax);
+void EvecCache_MinMaxVals(EvecCache *evCache, double *emin, double *emax);
 
 EnergyCache* copy_to_Ecache(EvecCache *evCache);
 

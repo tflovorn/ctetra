@@ -4,8 +4,12 @@
 //
 // TODO doc
 // Uses Kahan summation for improved accuracy on dense mesh.
-double tetra_SumTetra(tetra_SumFn F, double E, int n, int num_bands, EnergyCache *Ecache) {
-    double num_tetra = (double)(6*n*n*n);
+double tetra_SumTetra(tetra_SumFn F, double E, EnergyCache *Ecache) {
+    int na = Ecache->na;
+    int nb = Ecache->nb;
+    int nc = Ecache->nc;
+    int num_bands = Ecache->num_bands;
+    double num_tetra = (double)(6*na*nb*nc);
     double result = 0.0;
     double c = 0.0;
     double contrib, y, t;
@@ -20,9 +24,9 @@ double tetra_SumTetra(tetra_SumFn F, double E, int n, int num_bands, EnergyCache
     }
 
     // Iterate over tetrahedra.
-    for (k = 0; k < n; k++) {
-        for (j = 0; j < n; j++) {
-            for (i = 0; i < n; i++) {
+    for (k = 0; k < nc; k++) {
+        for (j = 0; j < nb; j++) {
+            for (i = 0; i < na; i++) {
                 // Collect band energies at vertices.
                 for (point_index = 0; point_index < 8; point_index++) {
                     pi = i + subcell_points[point_index][0];
@@ -71,5 +75,3 @@ void sortEs(double Es[4]) {
 		}
 	}
 }
-
-

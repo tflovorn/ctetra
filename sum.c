@@ -1,41 +1,45 @@
 #include "sum.h"
 
-double SumEnergy(double *E_Fermi, InputFn Efn, int n, int num_bands, double num_electrons, gsl_matrix *R, bool use_cache) {
+double SumEnergy(double *E_Fermi, InputFn Efn, int na, int nb, int nc, int num_bands, double num_electrons, gsl_matrix *R, bool use_cache) {
     int G_order[3] = {0, 0, 0};
     int G_neg[3] = {0, 0, 0};
     OptimizeGs(R, G_order, G_neg);
 
-    EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
+    EnergyCache *Ecache = init_EnergyCache(na, nb, nc, num_bands, G_order, G_neg, Efn, use_cache);
 
-    int err = FindFermi(n, num_bands, num_electrons, Ecache, E_Fermi);
+    int err = FindFermi(num_electrons, Ecache, E_Fermi);
     if (err != CTETRA_BISECT_OK) {
         printf("Error: FindFermi failed with error code = %d\n", err);
         free_EnergyCache(Ecache);
         exit(EXIT_FAILURE);
     }
 
-    double energy = with_cache_SumEnergyFixedFermi(*E_Fermi, Ecache, n, num_bands);
+    double energy = with_cache_SumEnergyFixedFermi(*E_Fermi, Ecache);
 
     free_EnergyCache(Ecache);
 
     return energy;
 }
 
-double SumEnergyFixedFermi(double E_Fermi, InputFn Efn, int n, int num_bands, gsl_matrix *R, bool use_cache) {
+double SumEnergyFixedFermi(double E_Fermi, InputFn Efn, int na, int nb, int nc, int num_bands, gsl_matrix *R, bool use_cache) {
     int G_order[3] = {0, 0, 0};
     int G_neg[3] = {0, 0, 0};
     OptimizeGs(R, G_order, G_neg);
 
-    EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
+    EnergyCache *Ecache = init_EnergyCache(na, nb, nc, num_bands, G_order, G_neg, Efn, use_cache);
 
-    double energy = with_cache_SumEnergyFixedFermi(E_Fermi, Ecache, n, num_bands);
+    double energy = with_cache_SumEnergyFixedFermi(E_Fermi, Ecache);
 
     free_EnergyCache(Ecache);
 
     return energy;
 }
 
-double with_cache_SumEnergyFixedFermi(double E_Fermi, EnergyCache *Ecache, int n, int num_bands) {
+double with_cache_SumEnergyFixedFermi(double E_Fermi, EnergyCache *Ecache) {
+    int na = Ecache->na;
+    int nb = Ecache->nb;
+    int nc = Ecache->nc;
+    int num_bands = Ecache->num_bands;
     double result = 0.0;
     double c = 0.0;
     double contrib, y, t;
@@ -47,9 +51,9 @@ double with_cache_SumEnergyFixedFermi(double E_Fermi, EnergyCache *Ecache, int n
     // The equivalent indices 0 and n are both included since the
     // weights for points with these indices are generated from distinct
     // places in the Brillouin zone.
-    for (k = 0; k < n+1; k++) {
-        for (j = 0; j < n+1; j++) {
-            for (i = 0; i < n+1; i++) {
+    for (k = 0; k < nc+1; k++) {
+        for (j = 0; j < nb+1; j++) {
+            for (i = 0; i < na+1; i++) {
                 for (band_index = 0; band_index < num_bands; band_index++) {
                     this_ws[band_index] = 0.0;
                 }
@@ -71,15 +75,15 @@ double with_cache_SumEnergyFixedFermi(double E_Fermi, EnergyCache *Ecache, int n
     return result;
 }
 
-double** partial_num_states(UEInputFn UEfn, int n, int num_bands, double num_total_electrons, gsl_matrix *R, double **Es, int num_E, double *E_Fermi, double **num_states_Fermi) {
+double** partial_num_states(UEInputFn UEfn, int na, int nb, int nc, int num_bands, double num_total_electrons, gsl_matrix *R, double **Es, int num_E, double *E_Fermi, double **num_states_Fermi) {
     int G_order[3] = {0, 0, 0};
     int G_neg[3] = {0, 0, 0};
     OptimizeGs(R, G_order, G_neg);
 
-    EvecCache *evCache = init_EvecCache(n, num_bands, G_order, G_neg, UEfn);
+    EvecCache *evCache = init_EvecCache(na, nb, nc, num_bands, G_order, G_neg, UEfn);
     EnergyCache *Ecache = copy_to_Ecache(evCache);
 
-    int err = FindFermi(n, num_bands, num_total_electrons, Ecache, E_Fermi);
+    int err = FindFermi(num_total_electrons, Ecache, E_Fermi);
     if (err != CTETRA_BISECT_OK) {
         printf("Error: FindFermi failed with error code = %d\n", err);
         free_EnergyCache(Ecache);
@@ -87,7 +91,7 @@ double** partial_num_states(UEInputFn UEfn, int n, int num_bands, double num_tot
     }
 
     double emin, emax;
-    EvecCache_MinMaxVals(n, num_bands, evCache, &emin, &emax);
+    EvecCache_MinMaxVals(evCache, &emin, &emax);
     double step = (emax - emin) / (num_E - 1);
 
     double **num_states_vals = malloc(num_bands * sizeof(double*));
@@ -122,7 +126,9 @@ double one_band_n(double E_Fermi, int band_index, EvecCache *evCache) {
     double contrib, y, t;
     int i, j, k, eig_band_index, kN;
     int num_bands = evCache->num_bands;
-    int n = evCache->n;
+    int na = evCache->na;
+    int nb = evCache->nb;
+    int nc = evCache->nc;
     double prob_val;
     double *this_ws = (double*)malloc(num_bands * sizeof(double));
     EnergyCache *Ecache = copy_to_Ecache(evCache);
@@ -132,14 +138,14 @@ double one_band_n(double E_Fermi, int band_index, EvecCache *evCache) {
     // The equivalent indices 0 and n are both included since the
     // weights for points with these indices are generated from distinct
     // places in the Brillouin zone.
-    for (k = 0; k < n+1; k++) {
-        for (j = 0; j < n+1; j++) {
-            for (i = 0; i < n+1; i++) {
+    for (k = 0; k < nc+1; k++) {
+        for (j = 0; j < nb+1; j++) {
+            for (i = 0; i < na+1; i++) {
                 for (eig_band_index = 0; eig_band_index < num_bands; eig_band_index++) {
                     this_ws[eig_band_index] = 0.0;
                 }
                 WeightsAtK(E_Fermi, i, j, k, Ecache, this_ws);
-                kN = submesh_ijk_index(evCache->n, i, j, k);
+                kN = submesh_ijk_index(na, nb, nc, i, j, k);
                 U = evCache->evecs[kN];
                 for (eig_band_index = 0; eig_band_index < num_bands; eig_band_index++) {
                     prob_val = gsl_complex_abs2(gsl_matrix_complex_get(U, band_index, eig_band_index));

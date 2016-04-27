@@ -1,47 +1,49 @@
 #include "submesh.h"
 
-void submesh_ijk_to_k(int n, int i, int j, int k, double k_opt[3]) {
-    double step = 1.0 / ((double)n);
-    k_opt[0] = ((double)i) * step;
-    k_opt[1] = ((double)j) * step;
-    k_opt[2] = ((double)k) * step;
+void submesh_ijk_to_k(int na, int nb, int nc, int i, int j, int k, double k_opt[3]) {
+    double step_a = 1.0 / ((double)na);
+    double step_b = 1.0 / ((double)nb);
+    double step_c = 1.0 / ((double)nc);
+    k_opt[0] = ((double)i) * step_a;
+    k_opt[1] = ((double)j) * step_b;
+    k_opt[2] = ((double)k) * step_c;
 }
 
-int submesh_ijk_index(int n, int i, int j, int k) {
-    return i + j*(n+1) + k*(n+1)*(n+1);
+int submesh_ijk_index(int na, int nb, int nc, int i, int j, int k) {
+    return i + j*(na+1) + k*(na+1)*(nb+1);
 }
 
-int **subcells_around_ijk(int n, int i, int j, int k, int *subcell_num) {
+int **subcells_around_ijk(int na, int nb, int nc, int i, int j, int k, int *subcell_num) {
     *subcell_num = 0;
 	// For each subcell, point (i, j, k) has the number in BJA94 Fig. 5
 	// corresponding to the subcell number.
     // First pass: get number of subcells that will be returned.
 	// Subcell #1
-	if (i != n && j != n && k != n) {
+	if (i != na && j != nb && k != nc) {
         (*subcell_num)++;
 	}
 	// Subcell #2
-	if (i != 0 && j != n && k != n) {
+	if (i != 0 && j != nb && k != nc) {
         (*subcell_num)++;
 	}
 	// Subcell #3
-	if (i != n && j != 0 && k != n) {
+	if (i != na && j != 0 && k != nc) {
         (*subcell_num)++;
 	}
 	// Subcell #4
-	if (i != 0 && j != 0 && k != n) {
+	if (i != 0 && j != 0 && k != nc) {
         (*subcell_num)++;
 	}
 	// Subcell #5
-	if (i != n && j != n && k != 0) {
+	if (i != na && j != nb && k != 0) {
         (*subcell_num)++;
 	}
 	// Subcell #6
-	if (i != 0 && j != n && k != 0) {
+	if (i != 0 && j != nb && k != 0) {
         (*subcell_num)++;
 	}
 	// Subcell #7
-	if (i != n && j != 0 && k != 0) {
+	if (i != na && j != 0 && k != 0) {
         (*subcell_num)++;
 	}
 	// Subcell #8
@@ -53,7 +55,7 @@ int **subcells_around_ijk(int n, int i, int j, int k, int *subcell_num) {
     int subcell_index = 0;
     // Collect subcells to return.
 	// Subcell #1
-	if (i != n && j != n && k != n) {
+	if (i != na && j != nb && k != nc) {
         subcells[subcell_index] = (int*)malloc(3*sizeof(int));
         subcells[subcell_index][0] = i;
         subcells[subcell_index][1] = j;
@@ -61,7 +63,7 @@ int **subcells_around_ijk(int n, int i, int j, int k, int *subcell_num) {
         subcell_index++;
 	}
 	// Subcell #2
-	if (i != 0 && j != n && k != n) {
+	if (i != 0 && j != nb && k != nc) {
         subcells[subcell_index] = (int*)malloc(3*sizeof(int));
         subcells[subcell_index][0] = i - 1;
         subcells[subcell_index][1] = j;
@@ -69,7 +71,7 @@ int **subcells_around_ijk(int n, int i, int j, int k, int *subcell_num) {
         subcell_index++;
 	}
 	// Subcell #3
-	if (i != n && j != 0 && k != n) {
+	if (i != na && j != 0 && k != nc) {
         subcells[subcell_index] = (int*)malloc(3*sizeof(int));
         subcells[subcell_index][0] = i;
         subcells[subcell_index][1] = j - 1;
@@ -77,7 +79,7 @@ int **subcells_around_ijk(int n, int i, int j, int k, int *subcell_num) {
         subcell_index++;
 	}
 	// Subcell #4
-	if (i != 0 && j != 0 && k != n) {
+	if (i != 0 && j != 0 && k != nc) {
         subcells[subcell_index] = (int*)malloc(3*sizeof(int));
         subcells[subcell_index][0] = i - 1;
         subcells[subcell_index][1] = j - 1;
@@ -85,7 +87,7 @@ int **subcells_around_ijk(int n, int i, int j, int k, int *subcell_num) {
         subcell_index++;
 	}
 	// Subcell #5
-	if (i != n && j != n && k != 0) {
+	if (i != na && j != nb && k != 0) {
         subcells[subcell_index] = (int*)malloc(3*sizeof(int));
         subcells[subcell_index][0] = i;
         subcells[subcell_index][1] = j;
@@ -93,7 +95,7 @@ int **subcells_around_ijk(int n, int i, int j, int k, int *subcell_num) {
         subcell_index++;
 	}
 	// Subcell #6
-	if (i != 0 && j != n && k != 0) {
+	if (i != 0 && j != nb && k != 0) {
         subcells[subcell_index] = (int*)malloc(3*sizeof(int));
         subcells[subcell_index][0] = i - 1;
         subcells[subcell_index][1] = j;
@@ -101,7 +103,7 @@ int **subcells_around_ijk(int n, int i, int j, int k, int *subcell_num) {
         subcell_index++;
 	}
 	// Subcell #7
-	if (i != n && j != 0 && k != 0) {
+	if (i != na && j != 0 && k != 0) {
         subcells[subcell_index] = (int*)malloc(3*sizeof(int));
         subcells[subcell_index][0] = i;
         subcells[subcell_index][1] = j - 1;
@@ -179,15 +181,19 @@ void OptimizeGs(gsl_matrix *R, int G_order[3], int G_neg[3]) {
     //printf("finished optimizeGs; k3_to_k6 = %f\n", k3_to_k6);
 }
 
-void MinMaxVals(int n, int num_bands, EnergyCache *Ecache, double *emin, double *emax) {
+void MinMaxVals(EnergyCache *Ecache, double *emin, double *emax) {
+    int na = Ecache->na;
+    int nb = Ecache->nb;
+    int nc = Ecache->nc;
+    int num_bands = Ecache->num_bands;
     double minval = 0.0;
     double maxval = 0.0;
     double this_min, this_max;
     gsl_vector *energies = gsl_vector_alloc(num_bands);
     int i, j, k;
-    for (k = 0; k < n+1; k++) {
-        for (j = 0; j < n+1; j++) {
-            for (i = 0; i < n+1; i++) {
+    for (k = 0; k < nc+1; k++) {
+        for (j = 0; j < nb+1; j++) {
+            for (i = 0; i < na+1; i++) {
                 energy_from_cache(Ecache, i, j, k, energies);
                 gsl_vector_minmax(energies, &this_min, &this_max);
                 if (i == 0 && j == 0 && k == 0) {

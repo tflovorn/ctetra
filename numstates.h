@@ -9,7 +9,7 @@
 #include "ecache.h"
 #include "tetra.h"
 
-double NumStates(double E, int n, int num_bands, EnergyCache *Ecache);
+double NumStates(double E, EnergyCache *Ecache);
 
 double NumStatesContrib(double E, double E1, double E2, double E3, double E4, double num_tetra);
 

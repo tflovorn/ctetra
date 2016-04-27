@@ -15,6 +15,6 @@ double Gauss_PartialDos_Eig(double E, double sigma, int orig_index, int eig_inde
 
 double Gauss_PartialDos(double E, double sigma, int orig_index, EvecCache *evCache);
 
-double** Gauss_PartialDosList(UEInputFn UEfn, int n, double sigma, int num_bands, gsl_matrix *R, double **Es, int num_dos);
+double** Gauss_PartialDosList(UEInputFn UEfn, int na, int nb, int nc, double sigma, int num_bands, gsl_matrix *R, double **Es, int num_dos);
 
 #endif //CTETRA_PARTIAL_H

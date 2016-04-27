@@ -1,8 +1,10 @@
 #include "weights.h"
 
 void WeightsAtK(double E_Fermi, int i, int j, int k, EnergyCache *Ecache, double *result) {
-    int n = Ecache->n;
-    double num_tetra = (double)(6*n*n*n);
+    int na = Ecache->na;
+    int nb = Ecache->nb;
+    int nc = Ecache->nc;
+    double num_tetra = (double)(6*na*nb*nc);
     int num_bands = Ecache->num_bands;
     double* c = (double*)malloc(num_bands * sizeof(double));
     int band_index;
@@ -15,7 +17,7 @@ void WeightsAtK(double E_Fermi, int i, int j, int k, EnergyCache *Ecache, double
     int tetras[6][4] = {{1, 2, 3, 6}, {1, 3, 5, 6}, {3, 5, 6, 7}, {3, 6, 7, 8}, {3, 4, 6, 8}, {2, 3, 4, 6}};
     int subcell_points[8][3] = {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}, {0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 1}};
     int subcell_num = 0;
-    int **subcells = subcells_around_ijk(n, i, j, k, &subcell_num);
+    int **subcells = subcells_around_ijk(na, nb, nc, i, j, k, &subcell_num);
 
     int subcell_index, tetra_index, vertex_index, point_index;
     int sci, scj, sck, pi, pj, pk;

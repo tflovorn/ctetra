@@ -3,16 +3,16 @@
 // Return a list of density of states values between the minimum and maximum
 // energy eigenvalues, which has length num_dos.
 // The energy values used are stored in Es, which should have length num_dos.
-double* Tetra_AllDosList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *Es, int num_dos) {
+double* Tetra_AllDosList(InputFn Efn, int na, int nb, int nc, int num_bands, gsl_matrix *R, double *Es, int num_dos) {
     int G_order[3] = {0, 0, 0};
     int G_neg[3] = {0, 0, 0};
     OptimizeGs(R, G_order, G_neg);
 
     bool use_cache = true;
-    EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
+    EnergyCache *Ecache = init_EnergyCache(na, nb, nc, num_bands, G_order, G_neg, Efn, use_cache);
 
     double emin, emax;
-    MinMaxVals(n, num_bands, Ecache, &emin, &emax);
+    MinMaxVals(Ecache, &emin, &emax);
     double step = (emax - emin) / (num_dos - 1);
 
     double *dos_vals = malloc(num_dos * sizeof(double));
@@ -21,27 +21,27 @@ double* Tetra_AllDosList(InputFn Efn, int n, int num_bands, gsl_matrix *R, doubl
     for (i = 0; i < num_dos; i++) {
         double E = emin + i*step;
         Es[i] = E;
-        dos_vals[i] = Tetra_TotalDos(E, Ecache, n, num_bands);
+        dos_vals[i] = Tetra_TotalDos(E, Ecache);
     }
     return dos_vals;
 }
 
 // Return a list of density of states values at the energies given in Es,
 // which has length num_dos.
-double* Tetra_DosList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *Es, int num_dos) {
+double* Tetra_DosList(InputFn Efn, int na, int nb, int nc, int num_bands, gsl_matrix *R, double *Es, int num_dos) {
     int G_order[3] = {0, 0, 0};
     int G_neg[3] = {0, 0, 0};
     OptimizeGs(R, G_order, G_neg);
 
     bool use_cache = true;
-    EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
+    EnergyCache *Ecache = init_EnergyCache(na, nb, nc, num_bands, G_order, G_neg, Efn, use_cache);
 
     double *dos_vals = malloc(num_dos * sizeof(double));
 
     int i = 0;
     for (i = 0; i < num_dos; i++) {
         double E = Es[i];
-        dos_vals[i] = Tetra_TotalDos(E, Ecache, n, num_bands);
+        dos_vals[i] = Tetra_TotalDos(E, Ecache);
     }
     return dos_vals;
 }
@@ -49,25 +49,25 @@ double* Tetra_DosList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *
 // Return a list of density of states derivative values between the minimum and maximum
 // energy eigenvalues, which has length num_dos.
 // The energy values used are stored in Es, which should have length num_dos.
-double* Tetra_DosEnergyDerivList(InputFn Efn, int n, int num_bands, gsl_matrix *R, double *Es, int num_dos, double num_electrons, double *fermi, double *dos_fermi, double *dos_deriv_fermi) {
+double* Tetra_DosEnergyDerivList(InputFn Efn, int na, int nb, int nc, int num_bands, gsl_matrix *R, double *Es, int num_dos, double num_electrons, double *fermi, double *dos_fermi, double *dos_deriv_fermi) {
     int G_order[3] = {0, 0, 0};
     int G_neg[3] = {0, 0, 0};
     OptimizeGs(R, G_order, G_neg);
 
     bool use_cache = true;
-    EnergyCache *Ecache = init_EnergyCache(n, num_bands, G_order, G_neg, Efn, use_cache);
+    EnergyCache *Ecache = init_EnergyCache(na, nb, nc, num_bands, G_order, G_neg, Efn, use_cache);
 
-    int err = FindFermi(n, num_bands, num_electrons, Ecache, fermi);
+    int err = FindFermi(num_electrons, Ecache, fermi);
     if (err != CTETRA_BISECT_OK) {
         printf("Error: FindFermi failed with error code = %d\n", err);
         free_EnergyCache(Ecache);
         exit(EXIT_FAILURE);
     }
-    *dos_fermi = Tetra_TotalDos(*fermi, Ecache, n, num_bands);
-    *dos_deriv_fermi = Tetra_TotalDosEnergyDeriv(*fermi, Ecache, n, num_bands);
+    *dos_fermi = Tetra_TotalDos(*fermi, Ecache);
+    *dos_deriv_fermi = Tetra_TotalDosEnergyDeriv(*fermi, Ecache);
 
     double emin, emax;
-    MinMaxVals(n, num_bands, Ecache, &emin, &emax);
+    MinMaxVals(Ecache, &emin, &emax);
     double step = (emax - emin) / (num_dos - 1);
 
     double *dos_deriv_vals = malloc(num_dos * sizeof(double));
@@ -76,19 +76,19 @@ double* Tetra_DosEnergyDerivList(InputFn Efn, int n, int num_bands, gsl_matrix *
     for (i = 0; i < num_dos; i++) {
         double E = emin + i*step;
         Es[i] = E;
-        dos_deriv_vals[i] = Tetra_TotalDosEnergyDeriv(E, Ecache, n, num_bands);
+        dos_deriv_vals[i] = Tetra_TotalDosEnergyDeriv(E, Ecache);
     }
     return dos_deriv_vals;
 }
 
 // Return the density of states at energy E.
-double Tetra_TotalDos(double E, EnergyCache *Ecache, int n, int num_bands) {
-    return tetra_SumTetra(DosContrib, E, n, num_bands, Ecache);
+double Tetra_TotalDos(double E, EnergyCache *Ecache) {
+    return tetra_SumTetra(DosContrib, E, Ecache);
 }
 
 // Return the energy derivative of the density of states at energy E.
-double Tetra_TotalDosEnergyDeriv(double E, EnergyCache *Ecache, int n, int num_bands) {
-    return tetra_SumTetra(DosEnergyDerivContrib, E, n, num_bands, Ecache);
+double Tetra_TotalDosEnergyDeriv(double E, EnergyCache *Ecache) {
+    return tetra_SumTetra(DosEnergyDerivContrib, E, Ecache);
 }
 
 // Return the contribution to the density of states at energy E from the

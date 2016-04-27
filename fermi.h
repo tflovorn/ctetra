@@ -12,7 +12,7 @@
 
 typedef double (*BisectFn)(double x);
 
-int FindFermi(int n, int num_bands, double num_electrons, EnergyCache *Ecache, double *E_Fermi);
+int FindFermi(double num_electrons, EnergyCache *Ecache, double *E_Fermi);
 
 int Bisect(double *result, BisectFn fn, double a, double b, double toly, int maxiter);
 

@@ -7,7 +7,9 @@
 #include "input.h"
 
 typedef struct {
-    int n;
+    int na;
+    int nb;
+    int nc;
     int num_bands;
     int G_order[3];
     int G_neg[3];
@@ -18,7 +20,7 @@ typedef struct {
 
 #include "submesh.h"
 
-EnergyCache* init_EnergyCache(int n, int num_bands, int G_order[3], int G_neg[3], InputFn Efn, bool use_cache);
+EnergyCache* init_EnergyCache(int na, int nb, int nc, int num_bands, int G_order[3], int G_neg[3], InputFn Efn, bool use_cache);
 
 void free_EnergyCache(EnergyCache *Ecache);
 

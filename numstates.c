@@ -6,8 +6,8 @@
 //
 // TODO doc
 // Uses Kahan summation for improved accuracy on dense mesh.
-double NumStates(double E, int n, int num_bands, EnergyCache *Ecache) {
-    return tetra_SumTetra(NumStatesContrib, E, n, num_bands, Ecache);
+double NumStates(double E, EnergyCache *Ecache) {
+    return tetra_SumTetra(NumStatesContrib, E, Ecache);
 }
 
 // Return the contribution to the number of states with energy less than

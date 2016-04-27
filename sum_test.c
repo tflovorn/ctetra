@@ -22,7 +22,9 @@ int main(int argc, char *argv[]) {
             gsl_vector_set(energies, i, E0_band + tk);
         }
     }
-    int n = 8;
+    int na = 8;
+    int nb = 8;
+    int nc = 8;
     bool use_cache = true;
 
     gsl_matrix *R = gsl_matrix_calloc(3, 3); // R -> all zeros
@@ -33,7 +35,7 @@ int main(int argc, char *argv[]) {
 
     double num_electrons = 1.0;
     double E_Fermi = 0.0;
-    double energy = SumEnergy(&E_Fermi, Efn, n, num_bands, num_electrons, R, use_cache);
+    double energy = SumEnergy(&E_Fermi, Efn, na, nb, nc, num_bands, num_electrons, R, use_cache);
     printf("Got E_Fermi = %f\n", E_Fermi);
     printf("Got energy = %f\n", energy);
 
