@@ -4,7 +4,11 @@ This paper is referred to in the documentation of this package as 'BJA94'.
 
 # Dependencies
 
-Requires the GNU Scientific Library. To obtain on Debian-based distribtions:
+Requires the GNU Scientific Library. To obtain on recent Debian-based distributions:
+
+    sudo apt-get install libgsl-dev
+
+On older versions of Debian-based distributions, use:
 
     sudo apt-get install libgsl0ldbl libgsl0-dev
 
